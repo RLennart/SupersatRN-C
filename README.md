@@ -41,11 +41,11 @@ For any questions regarding the software, please contact **[Simon Ternes](mailto
 ### Citing
 
 If you use our software or parts of it in the current or a modified version, you are obliged to provide proper attribution. This can be to our paper describing the software:
-[ref]
+(https://onlinelibrary.wiley.com/doi/10.1002/advs.202308901)
 
 ### License
 
-This software is licensed under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html) license. © 2021 EYcalc - Simon Ternes
+This software is licensed under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html) license. © 2023 SupersatRN-C Simon Ternes
 
 Interested in a sublicense agreement to use SupersatRN-C in a non-free/restrictive environment? Contact **[Simon Ternes](mailto:ternes@ing.uniroma2.it?subject=[GitHub]%20Question%20on%SupersatRN-C)**!
 
