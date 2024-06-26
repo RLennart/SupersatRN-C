@@ -21,10 +21,11 @@ The basic features of SupersatRN-C are
 
 ### Installing 
 
-For installing the package, just download or clone the directory and execute
+For installing the package, just download or clone the directory, navigate to the folder and execute
 ```console
 python -m pip install .
 ```
+in a command shell.
 ### Credits 
 This software project was intiated and impelmented by **[Simon Ternes](mailto:ternes@ing.uniroma2.it?subject=[GitHub]%20Question%20on%SupersatRN-C)** under the supervision of **[Ulrich W. Paetzold](mailto:ulrich.paetzold@kit.edu)**.
 
