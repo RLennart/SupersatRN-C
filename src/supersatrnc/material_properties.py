@@ -65,6 +65,15 @@ solvents['GBL'] = {'massDens_gpcm3':1.1296 , #https://en.wikipedia.org/wiki/Gamm
                     'isAntiSolvent':False
                     }
 
+solvents['2ME'] = {'massDens_gpcm3':0.965 , #https://en.wikipedia.org/wiki/2-Methoxyethanol
+                    'molMass_gpmol':76.09, #https://en.wikipedia.org/wiki/2-Methoxyethanol
+                    'diffVol':(15.9 * 3 + 2.31 * 8 + 6.11*2), #2*C + 8*H+2*O
+                    'antoineParams':[[[-43,465.85],[5.06386,1853.556,-30.838],True]], #https://webbook.nist.gov/cgi/cbook.cgi?ID=C109864&Mask=4&Type=ANTOINE&Plot=on
+                    'surfaceTensionParams':[30.84,-0.08], #https://materials.springer.com/lb/docs/sm_lbs_978-3-540-75508-1_53
+                    'dynViscosity_mPas':1.7, #https://www.carlroth.com/medias/SDB-8892-AU-EN.pdf?context=bWFzdGVyfHNlY3VyaXR5RGF0YXNoZWV0c3wyNjg5MTB8YXBwbGljYXRpb24vcGRmfGg2OC9oMGMvOTE0ODEzMjQyNTc1OC9TREJfODg5Ml9BVV9FTi5wZGZ8NGM5OGRiMzJhYmJlNzhjNGFiYTU0ZjRkZmI3NTI3YjBjYmIzNzg0YzRmY2E2YmJlMDMyMzlhZTFkYmNlNmI3MA
+                    'isAntiSolvent':False
+                    }
+
 solvents['CB'] = {'massDens_gpcm3': 1.11 , #https://en.wikipedia.org/wiki/Chlorobenzene
                     'molMass_gpmol': 	112.56, #https://en.wikipedia.org/wiki/Gamma-Butyrolactone
                     'diffVol':(15.9 * 6+2.31 * 5 + 21*1-18.3), #6*C + 5*H+1*Cl-1*Aromatic Ring, WLI, Da28
