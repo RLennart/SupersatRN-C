@@ -19,6 +19,12 @@ The basic features of SupersatRN-C are
 * Possibility of regime-based processing methods combining arbitrary methods and/or activity changes within the solution.
 * Possibility to fit activity coefficients based on interferometric data.
 
+### Installing 
+
+For installing the package, just download or clone the directory and execute
+```console
+python -m pip install .
+```
 ### Credits 
 This software project was intiated and impelmented by **[Simon Ternes](mailto:ternes@ing.uniroma2.it?subject=[GitHub]%20Question%20on%SupersatRN-C)** under the supervision of **[Ulrich W. Paetzold](mailto:ulrich.paetzold@kit.edu)**.
 
