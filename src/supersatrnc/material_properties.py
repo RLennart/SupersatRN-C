@@ -29,11 +29,6 @@ R_JpmolK = 8.3144598;
 NA_1pmol = 6.02214 * 10**23;
 
 
-#Commonly used constants
-R_JpmolK = 8.3144598;
-NA_1pmol = 6.02214 * 10**23;
-
-
 solvents = dict();
 
 
@@ -114,9 +109,10 @@ crystals = dict(); # Temperatures, Cubic lattice constant in A
 #https://www.nature.com/articles/srep35685/figures/6
 crystals['MAPI'] = {'latticeConstant_A':6.25, #https://materials.hybrid3.duke.edu/materials/24
                     'molMass_gpmol': (67.52 + 207.2 + 126.9*3),
-                    'eqConcentration_molpm3':{'DMF':1520,'DMSO':1520,'GBL':1520}, #Si section 1
-                    'critConcentration_molpm3':{'DMF':6340,'DMSO':6340,'GBL':6340}, #Si section 1
-                    'quenchingEff_molpm3':{'CB':{'DMF':2.88220474*1000,'DMSO':2.88220474*1000,'GBL':2.88220474*1000},'VARCB':{'DMF':2.88220474*1000,'DMSO':2.88220474*1000,'GBL':2.88220474*1000}}} #Si section
+                    'eqConcentration_molpm3':{'DMF':1520,'DMSO':1520,'GBL':1520,'2ME':800}, #Si section 1
+                    'critConcentration_molpm3':{'DMF':6340,'DMSO':6340,'GBL':6340,'2ME':3040}, #Si section 1
+                    'quenchingEff_molpm3':{'CB':{'DMF':2.88220474*1000,'DMSO':2.88220474*1000,'GBL':2.88220474*1000,'2ME':2.88220474*1000},
+                                           'VARCB':{'DMF':2.88220474*1000,'DMSO':2.88220474*1000,'GBL':2.88220474*1000}}} #Si section
 
 crystals['TWOCAT'] = {'latticeConstant_A':6.36,#https://pubs.acs.org/doi/pdf/10.1021/acs.jpclett.5b01432 for FAPI
                       'molMass_gpmol':(132.91*0.17 + 171.97*0.83 + 207.2 + 126.9*3*0.91 + 79.9*3*0.09),

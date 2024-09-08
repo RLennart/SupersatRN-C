@@ -113,7 +113,7 @@ dyns.plotFilmThicknessCompositionAndSupersaturation(axs);
 plt.savefig('MAPI_antiSolvent.png')
 
 
-fig,axs = plt.subplots(nrows=2,figsize=st.figsize())
+fig,axs = plt.subplots(nrows=2,figsize=st.figsize(1.1))
 film1 = Film(sp,[GBL,DMSO,DMF,TWOCAT],2, [1/3*1.3,0.2*2/3*1.3,0.8*2/3*0.7], 0.86)
 
 dyns = AntiSolventDynamics(film1,0.03,antiSolvent=CB);

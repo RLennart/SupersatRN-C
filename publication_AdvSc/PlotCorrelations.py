@@ -109,5 +109,5 @@ plt.yscale('log')
 
 
 
-
+plt.show()
 

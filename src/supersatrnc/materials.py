@@ -215,4 +215,5 @@ class Compound:
     
     def isSolute(self)->bool:
         return isinstance(self.sld,Crystal);
-    
+
+

@@ -107,6 +107,8 @@ def test_plot():
     dynsDynGas1 = GasQuenchDynamics(film1,55);
     dynsDynGas1.computeSolution();
     plt.plot(dynsDynGas1.times,dynsDynGas1.result.thicknesses_m())
-    
-    
+    plt.show()
     assert dynsDynGas1.result.thicknesses_m()[0] < 100e-6 and dynsDynGas1.result.thicknesses_m()[0] > 100e-9
+
+
+test_plot()

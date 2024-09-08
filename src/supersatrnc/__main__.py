@@ -34,9 +34,11 @@ from matplotlib.collections import PolyCollection;
 import copy;
 import pylab as plt;
 
+
+
 class SimulationParameters():
-    
-    def __init__(self,corr:Correlation,T_C:float,p_pa:float=101325,t_s:float=0) -> None:
+
+    def __init__(self, corr: Correlation, T_C: float, p_pa: float = 101325, t_s: float = 0) -> None:
         self.T = T_C + 273.15;
         self.p0 = p_pa;
         self.t0 = t_s;
@@ -45,9 +47,9 @@ class SimulationParameters():
 
 class SimulationVariables():
 
-    def __init__(self,sp):
-        self.p = sp.p0;
-        self.t = sp.t0;
+    def __init__(self, sp):
+        self.p = sp.p0;  # pressure outside
+        self.t = sp.t0;  # start time simulation
 
 
 class Film():
@@ -85,12 +87,13 @@ class Film():
                 r = volume_ratios_solute.pop(0);
                 
             self.addCompound(c,r);
-        
+
+        # list of compounds (e.g. DMF and MAPI)
         self.compounds = self.slts+self.slvs;    
         
         self.Np_mol = np.sum(np.array(list(self.Np0s_mol.values())));
       
-        
+    # this function should be defined in film setup class, logic from above should be in here
     def addCompound(self,c:Compound,init_ratio:float) -> None:
         if(not c.isSolute()):           
             self.slvs.append(c);
@@ -105,8 +108,7 @@ class Film():
         else:
             self.slts.append(c);
             self.Np0s_mol[c] = self.dp_m*init_ratio*c.sld.molDens_molpm3(self.sp.T,self.sp.p0);
-        
-    
+
     def Ni0s(self) -> npt.NDArray[np.float64]:
         return np.array([self.Ni0s_mol[slv] for slv in self.slvs]);
     
@@ -152,7 +154,7 @@ class CalculationResult():
         for i,s in enumerate(sol_data):
             self.solution[film.slvs[i]] = s;
 
-        self.__findCritSuperSatAndRate();
+        self.findCritSuperSatAndRate();
 
     def thicknesses_m(self,liquids:list[Solvent]=[],offset:float=0) -> npt.NDArray[np.float64]:
         if(liquids == []):
@@ -175,33 +177,33 @@ class CalculationResult():
 
          return ths_sld+ths_slv,colors;
     
-    
-    def filmWithShiftedInitState(self,index:int=-1) -> npt.NDArray[np.float64]:
-        
-        d_init = self.thicknesses_m()[index]*1000*1000;
-        
-        vrs = np.array([self.solution[s][index]/s.liq.molDens_molpm3(self.sp.T,self.sp.p0) for s in self.film.slvs])/(self.thicknesses_m()[index]-self.film.dp_m);
-        
-        vrps = np.array(self.film.dp0s_m())/self.dp_m;
-        
-        return Film(SimulationParameters(self.sp.corr,self.sp.T,self.sp.p0,0),self.compounds, d_init, list(vrs), self.dp_m*1000*1000, list(vrps));
-    
-
-    def totaldisTimesWeights_m(self,liquids:list[Solvent]=[],weights:npt.NDArray[np.float64]=-1) -> npt.NDArray[np.float64]:
-        
-        
-        if(liquids==[]):
-            liquids=self.film.slvs;
-        
-        if(weights==-1):
-            weights = np.ones(len(liquids));
-        
-        res = 0;
-        
-        for i,slv in enumerate(liquids):
-            res = res + weights[i]*self.solution[slv]/slv.liq.molDens_molpm3(self.sp.T,self.sp.p0);
-        
-        return res;
+    #
+    # def filmWithShiftedInitState(self,index:int=-1) -> npt.NDArray[np.float64]:
+    #
+    #     d_init = self.thicknesses_m()[index]*1000*1000;
+    #
+    #     vrs = np.array([self.solution[s][index]/s.liq.molDens_molpm3(self.sp.T,self.sp.p0) for s in self.film.slvs])/(self.thicknesses_m()[index]-self.film.dp_m);
+    #
+    #     vrps = np.array(self.film.dp0s_m())/self.dp_m;
+    #
+    #     return Film(SimulationParameters(self.sp.corr,self.sp.T,self.sp.p0,0),self.compounds, d_init, list(vrs), self.dp_m*1000*1000, list(vrps));
+    #
+    #
+    # def totaldisTimesWeights_m(self,liquids:list[Solvent]=[],weights:npt.NDArray[np.float64]=-1) -> npt.NDArray[np.float64]:
+    #
+    #
+    #     if(liquids==[]):
+    #         liquids=self.film.slvs;
+    #
+    #     if(weights==-1):
+    #         weights = np.ones(len(liquids));
+    #
+    #     res = 0;
+    #
+    #     for i,slv in enumerate(liquids):
+    #         res = res + weights[i]*self.solution[slv]/slv.liq.molDens_molpm3(self.sp.T,self.sp.p0);
+    #
+    #     return res;
 
     
     def c_lin(self,crit:bool=False) -> npt.NDArray[np.float64]:
@@ -233,7 +235,7 @@ class CalculationResult():
                         
             ret = ret + add*self.film.dpj0_m(slt)/self.film.dp_m; 
         
-        #Concentrations are always greater zero
+        #Concentrations are always greater zero - todo what?? why is this code required at all?
         for i,r in enumerate(ret):
             if(r<0):
                 ret[i] = 0;
@@ -241,39 +243,33 @@ class CalculationResult():
         return ret;
 
 
-    def __supersaturation(self) -> npt.NDArray[np.float64]:
-        with np.errstate(divide='ignore', invalid='ignore'):
-            #print(self.film.Np_mol,self.thicknesses_m(offset=self.film.dp_m),self.c_lin())
-            #return self.c_lin();
-            ret = np.log(self.film.Np_mol/self.thicknesses_m(offset=self.film.dp_m)/self.c_lin());
-        return ret;
-
-    def __findCritSuperSatAndRate(self) -> npt.NDArray[np.float64]:
+    def findCritSuperSatAndRate(self) -> npt.NDArray[np.float64]:
          
          self.crit_index = 0;
-         self.supersats = self.__supersaturation();
+
+        # todo why errstate?
+         with np.errstate(divide='ignore', invalid='ignore'):
+             # print(self.film.Np_mol,self.thicknesses_m(offset=self.film.dp_m),self.c_lin())
+             # return self.c_lin();
+             ret = np.log(self.film.Np_mol / self.thicknesses_m(offset=self.film.dp_m) / self.c_lin());
+
+         self.supersats = ret;
          ceqs = self.c_lin(False);
          
          crits = self.c_lin(True);
-         
-         
+
          threshold = np.log(crits[0]/ceqs[0])
          
          #print(self.crit_index<(len(supersats)-1),np.isnan(supersats[self.crit_index]),supersats[self.crit_index] < threshold,supersats[self.crit_index],threshold)
          
-         
+         # todo this is lol
          while (self.crit_index<(len(self.supersats)-1) and (np.isnan(self.supersats[self.crit_index]) or self.supersats[self.crit_index] < threshold)):
              self.crit_index = self.crit_index+1;
          
-         self.superSatRate = self.__supersaturationRate();
+         self.superSatRate = np.gradient(self.supersats,(self.times[1]-self.times[0]));
          self.crit_superSat = self.supersats[self.crit_index];
          self.crit_superSatRate = self.superSatRate[self.crit_index];    
-         
-    
-    def __supersaturationRate(self) -> npt.NDArray[np.float64]:
-        
-        return np.gradient(self.__supersaturation(),(self.times[1]-self.times[0]))
-    
+
     
     def getFilmWithShiftedInitState(self,index:int=-1) -> Film:
         
@@ -288,22 +284,11 @@ class CalculationResult():
         return Film(self.film.sp,self.film.compounds, d_init, list(vrs), self.film.dp_m*1000*1000, list(vrps));
     
 
-    def addAntiSolvent(self,antiSolvent:Solvent,djs:npt.NDArray[np.float64]) -> None:
-        self.solution[antiSolvent] = djs*antiSolvent.liq.molDens_molpm3(self.sp.T, self.sp.p0);
-
-        #print(self.film.slvs)
-
-        self.film = self.film.getFilmWithAddedAntiSolvent(antiSolvent);
-
-        #print(self.film.slvs)
-        
-        self.__findCritSuperSatAndRate(); #need to update supersaturation with added Antisolvent.
-        
-    def djs(self) -> npt.NDArray[np.float64]:
-        return self.film.d0_m-self.totaldisTimesWeights_m();
-
-    def Vratios(self) -> npt.NDArray[np.float64]: 
-        return self.djs()/self.totaldisTimesWeights_mol();
+    # def djs(self) -> npt.NDArray[np.float64]:
+    #     return self.film.d0_m-self.totaldisTimesWeights_m();
+    #
+    # def Vratios(self) -> npt.NDArray[np.float64]:
+    #     return self.djs()/self.totaldisTimesWeights_mol();
 
 
 class DynamicsSimulation:
@@ -312,24 +297,24 @@ class DynamicsSimulation:
         self.film = film;
         self.end_time_s = end_time_s;
         self.number_of_time_steps = number_of_time_steps;
-        self.adjustStartTime(self.film.sp.t0);
+
+        if(self.film.sp.t0 > self.end_time_s):
+            raise AttributeError("t0 cannot be more than maximum simulation time");
+        self.times = np.linspace(self.film.sp.t0,self.end_time_s,self.number_of_time_steps);
+
         self.result = None;
         self.sv = SimulationVariables(self.film.sp);
 
-
-    def adjustStartTime(self,t0) -> None:
-        self.film.sp.t0 = t0;
-        if(t0 > self.end_time_s):
-            raise AttributeError("t0 cannot be more than maximum simulation time");
-        self.times = np.linspace(t0,self.end_time_s,self.number_of_time_steps);
 
     def computeSolution(self) -> None:
         
         self.sv = SimulationVariables(self.film.sp);
 
+        # this is the expensive line
         sol = solve_ivp(self.Niprimes_molps, [self.times[0], self.times[-1]],self.film.Ni0s(),dense_output=True,max_step=self.times[1]-self.times[0]);
 
-        soly = sol.sol(self.times);
+        # this is weird. here the y-solution is extracted and then fed into Calculation Result
+        soly = sol.sol(self.times); # this is likely more-dimensional if multiple solvent components inside
         
         self.result = CalculationResult(self.film, self.times, soly);
         
@@ -389,8 +374,7 @@ class DynamicsSimulation:
         #print(ths,colors)
         
         return polys;
-    
-    
+
     
     def plotFilmThicknessCompositionAndSupersaturation(self,axes:tuple[Axes],interferometricDataFiles:list[str]=[],dataLabels:list[str]=[],xytext:tuple[float]=(10,-10),max_ind:int=-1,time_div:float=0) -> None:
         
@@ -476,10 +460,12 @@ class GasQuenchDynamics(DynamicsSimulation):
         self.activities = activities;
     
     def prop(self,m:Compound,i:int,Nis:list[float]) -> float:
-        ret = self.film.sp.corr.beta(self.film.sp.T,self.sv.p,m.gas)*m.gas.vaporPressure_Pa(self.film.sp.T)/R_JpmolK/self.film.sp.T/self.denom(i, Nis);
+        ret = (self.film.sp.corr.beta(self.film.sp.T,self.sv.p,m.gas)
+               *m.gas.vaporPressure_Pa(self.film.sp.T)/R_JpmolK/self.film.sp.T/(np.sum(Nis)+self.film.Np_mol));
 
         #print(self.sv.t,self.film.sp.corr.beta(self.film.sp.T,self.sv.p,m.gas),m.gas.vaporPressure_Pa(self.film.sp.T),self.denom(i, Nis))
 
+        # todo rather set activities to standard 1 if not given
         if(not m in self.activities.keys()):
             return ret
     
@@ -496,6 +482,7 @@ class DynamicGasQuenchDynamics(GasQuenchDynamics):
         
         self.L_m=L_m;
         if(L_m==None):
+            # it does not jump in here but it would cause errors since not defined
             self.L_m = self.film.corr.D_m*10;
         
         self.v_mps = v_mps;
@@ -522,30 +509,7 @@ class VacuumDynamics(GasQuenchDynamics):
     def setPressureAndVel(self) -> None:
         self.sv.p = self.film.sp.p0*np.exp(-self.pp[0]*(self.sv.t))+self.pp[1]-self.pp[2]*(self.sv.t);
         self.film.sp.corr.u0_mps = self.u0p[1]*np.exp(-self.u0p[0]*(self.sv.t));
-        
-        
-class AntiSolventDynamics(DynamicsSimulation):
 
-    def __init__(self,film:Film,end_time_s:float,number_of_time_steps:int=10000,antiSolvent:Compound=None):
-        super().__init__(film,end_time_s,number_of_time_steps)
-        self.antiSolvent = antiSolvent;
-
-    def prop(self,m,i,Nis):
-        return self.film.sp.corr.beta(self.film.sp.T,self.sv.p,m.liq)/self.denom(i,Nis);
-    
-    def denom(self,i,Nis):
-        return (self.film.dp_m+self.film.d0_m);
-    
-    def computeSolution(self):
-        
-        super().computeSolution();
-        
-        self.result.addAntiSolvent(self.antiSolvent,self.result.djs())
-
-
-    def maximumSupersaturation(self):
-        return self.result.crit_superSatRate;
-    
     
 class SimulationQueue:
     def __init__(self,onsets:list[list[str,float]],simulations:list[DynamicsSimulation]) -> None:
@@ -653,7 +617,6 @@ class DryAndWetThicknessFitter:
          
          return inter_cub(xdata);
     
-
 
 # Generalize on Simulation-Queue and then determine + plot;
 class ActivityFitter:
